@@ -1,8 +1,7 @@
 import logging
 import re
 import time
-from typing import Any, Dict, NamedTuple, Optional, Union, Callable, List
-from typing_extensions import Literal
+from typing import Any, Dict, NamedTuple, Optional, Union, Callable, List, Literal
 
 import jwt
 
