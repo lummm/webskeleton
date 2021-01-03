@@ -15,5 +15,6 @@ setup(name='webskeleton',
       packages=find_packages(),
       package_data={
           '': ['*.yaml'],
+          "webskeleton": ["py.typed"],
       },
 )
