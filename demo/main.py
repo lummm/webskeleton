@@ -1,13 +1,20 @@
 #!/usr/bin/env python3
 
-from webskeleton import load_routes
+import asyncio
+import os
+
+from webskeleton import WebSkeleton
 
 import demo_controllers
 
 
 def main():
-    app = load_routes(demo_controllers)
-    app.run(8000)
+    app = WebSkeleton(demo_controllers)
+    app.run(
+        port=8000,
+        dbhost=os.environ["PGHOST"],
+        dbpassword=os.environ["PGPASSWORD"],
+    )
     return
 
 

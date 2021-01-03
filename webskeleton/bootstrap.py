@@ -10,6 +10,7 @@ from aiohttp import web  # type: ignore
 from box import Box  # type: ignore
 
 from . import auth
+from . import db
 from .typez import AuthConf, Req
 
 
@@ -62,11 +63,6 @@ def req_wrapper_factory():
     return wrap_req
 
 
-def init_webapp() -> web.Application:
-    app = web.Application(middlewares=[req_wrapper_factory()])
-    return app
-
-
 # public
 def routedef(
     method="GET",
@@ -105,21 +101,7 @@ def routedef(
     return dec
 
 
-class WebSkeleton():
-    def __init__(self, webapp: web.Application):
-        self.webapp = webapp
-        return
-
-
-    def run(self, port: int):
-        import uvloop
-        asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
-        web.run_app(self.webapp, port=port)
-        return
-
-
-def load_routes(routes_mod: ModuleType) -> WebSkeleton:
-    webapp = init_webapp()
+def load_routes(webapp: web.Application, routes_mod: ModuleType) -> web.Application:
     METHOD_MAP = {
         "GET": web.get,
         "POST": web.post,
@@ -132,4 +114,33 @@ def load_routes(routes_mod: ModuleType) -> WebSkeleton:
         for fn in fns
     ]
     webapp.add_routes(routes)
-    return WebSkeleton(webapp=webapp)
+    return webapp
+
+
+
+
+class WebSkeleton():
+    def __init__(self, routes_module: ModuleType):
+        self.routes_module = routes_module
+        return
+
+    def run(
+            self,
+            *,
+            port: int = 0,
+            dbuser: str = "postgres",
+            dbpassword: str = "",
+            database: str = "postgres",
+            dbhost: str = "127.0.0.1",
+    ):
+        import uvloop
+        asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
+
+        async def init():
+            await db.connect(user=dbuser, password=dbpassword, database=database, host=dbhost)
+            app = web.Application(middlewares=[req_wrapper_factory()])
+            app = load_routes(app, self.routes_module)
+            return app
+
+        web.run_app(init(), port=port)
+        return
