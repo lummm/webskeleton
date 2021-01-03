@@ -6,6 +6,7 @@ from typing_extensions import Literal
 
 import jwt
 
+from . import autheval
 from .request import Req
 from .typez import AuthPolicy, TokenType, AuthConf
 
@@ -56,8 +57,7 @@ def issue_token(
 
 def get_handler(policy: AuthPolicy, req: Req):
     if policy == "user-owns":
-        return True
-        # return req.services.authorize.user_owns_all
+        return autheval.user_owns_all
     raise Exception("no known auth handler")
 
 
