@@ -18,7 +18,9 @@ def _to_fn_arg(arg_row: List[str])-> FnArg:
         # [<var_name>, <var_type>]
         return FnArg(name=arg_row[0], type=arg_row[1])
     # [<var_name>, <var_type>, DEFAULT, <default_val::type>]
-    assert 'DEFAULT' == arg_row[2]
+    if 'DEFAULT' != arg_row[2]:
+        print(arg_row)
+        raise Exception("failed to parse fn" + str(arg_row))
     default = arg_row[3].split("::")[0]
     return FnArg(
         name=arg_row[0],

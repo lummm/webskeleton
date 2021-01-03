@@ -24,14 +24,19 @@ def _get_calling_sql(schema: str, fn: FnRecord) -> str:
 
 
 def _type_lookup(typename: str) -> str:
-    return {
+    typemap = {
         "text": "str",
         "integer": "int",
         "uuid": "str",
         "json": "Dict",
         "jsonb": "Dict",
-        "boolean": "bool"
-    }[typename]
+        "boolean": "bool",
+        "bytea": "bytes",
+    }
+    if len(typename) > 2 and typename[-2:] == "[]":
+        item_type = typemap[typename[:-2]]
+        return f"List[{item_type}]"
+    return typemap[typename]
 
 
 def _get_fn_args(fn: FnRecord) -> str:
@@ -81,7 +86,7 @@ def get_impl_language_model_def(schema: str, view: TableRecord):
 
 
 def wrap_view_defs(contents: str) -> str:
-    return f"""from typing import NamedTuple, Dict
+    return f"""from typing import NamedTuple, List, Dict
 
 from box import Box
 from pypika import Table, PostgreSQLQuery, Schema
@@ -94,7 +99,7 @@ from pypika import Table, PostgreSQLQuery, Schema
 
 
 def wrap_fn_defs(contents: str) -> str:
-    return f"""from typing import Dict
+    return f"""from typing import Dict, List
 
 import webskeleton.db as db
 
