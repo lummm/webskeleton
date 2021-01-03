@@ -1,6 +1,6 @@
 from typing import List
 
-import asyncpg                  # type: ignore
+import asyncpg  # type: ignore
 
 
 pool: asyncpg.pool.Pool
@@ -14,26 +14,21 @@ def _check_pool():
 
 async def _adjust_asyncpg_json_conversion(con: asyncpg.Connection):
     import json
+
     await con.set_type_codec(
-        'jsonb',
-        encoder=json.dumps,
-        decoder=json.loads,
-        schema='pg_catalog'
+        "jsonb", encoder=json.dumps, decoder=json.loads, schema="pg_catalog"
     )
     await con.set_type_codec(
-        'json',
-        encoder=json.dumps,
-        decoder=json.loads,
-        schema='pg_catalog'
+        "json", encoder=json.dumps, decoder=json.loads, schema="pg_catalog"
     )
     return
 
 
 async def connect(
-        user: str = "postgres",
-        password: str = "",
-        database: str = "postgres",
-        host: str = "127.0.0.1",
+    user: str = "postgres",
+    password: str = "",
+    database: str = "postgres",
+    host: str = "127.0.0.1",
 ):
     global pool
     pool = await asyncpg.create_pool(

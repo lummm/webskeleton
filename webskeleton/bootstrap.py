@@ -75,6 +75,7 @@ def routedef(
     """
     decorator to define a route
     """
+
     def dec(fn):
         @functools.wraps(fn)
         async def impl_fn(req: Req):
@@ -106,37 +107,38 @@ def load_routes(webapp: web.Application, routes_mod: ModuleType) -> web.Applicat
         "POST": web.post,
         "PUT": web.put,
     }
-    fns = [f for name, f in getmembers(routes_mod)
-           if isfunction(f) and getattr(f,"is_endpoint", None)]
-    routes = [
-        METHOD_MAP[fn.method](fn.path, fn) # type: ignore
-        for fn in fns
+    fns = [
+        f
+        for name, f in getmembers(routes_mod)
+        if isfunction(f) and getattr(f, "is_endpoint", None)
     ]
+    routes = [METHOD_MAP[fn.method](fn.path, fn) for fn in fns]  # type: ignore
     webapp.add_routes(routes)
     return webapp
 
 
-
-
-class WebSkeleton():
+class WebSkeleton:
     def __init__(self, routes_module: ModuleType):
         self.routes_module = routes_module
         return
 
     def run(
-            self,
-            *,
-            port: int = 0,
-            dbuser: str = "postgres",
-            dbpassword: str = "",
-            database: str = "postgres",
-            dbhost: str = "127.0.0.1",
+        self,
+        *,
+        port: int = 0,
+        dbuser: str = "postgres",
+        dbpassword: str = "",
+        database: str = "postgres",
+        dbhost: str = "127.0.0.1",
     ):
-        import uvloop           # type: ignore
+        import uvloop  # type: ignore
+
         asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
 
         async def init():
-            await db.connect(user=dbuser, password=dbpassword, database=database, host=dbhost)
+            await db.connect(
+                user=dbuser, password=dbpassword, database=database, host=dbhost
+            )
             app = web.Application(middlewares=[req_wrapper_factory()])
             app = load_routes(app, self.routes_module)
             return app

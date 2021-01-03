@@ -62,17 +62,17 @@ def get_handler(policy: AuthPolicy, req: Req):
 
 
 def creds_parse_bearer(
-        bearer_creds: str,
-        token_type: TokenType,
+    bearer_creds: str,
+    token_type: TokenType,
 ) -> Dict:  # claims
-        match = re.match(BEARER_REGEX, bearer_creds)
-        if not match:
-            raise CredsParseException("failed to parse token from creds")
-        token = match.groups()[0]
-        if not token:
-            raise CredsParseException("bad creds")
-        claims = parse_token(key, token, token_type)
-        return claims
+    match = re.match(BEARER_REGEX, bearer_creds)
+    if not match:
+        raise CredsParseException("failed to parse token from creds")
+    token = match.groups()[0]
+    if not token:
+        raise CredsParseException("bad creds")
+    claims = parse_token(key, token, token_type)
+    return claims
 
 
 async def check_authenticated(req: Req) -> str:
