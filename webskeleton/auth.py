@@ -40,7 +40,6 @@ def issue_token(
     user_id: str,
     token_type: str,
     exp_s: int,
-    token_sig: str,
 ) -> str:
     exp_time = time.time() + exp_s
     return jwt.encode(
@@ -49,9 +48,9 @@ def issue_token(
             "user_id": user_id,
             "token_type": token_type,
         },
-        token_sig,
+        key,
         algorithm=TOKEN_ALGO,
-    )
+    ).decode("utf-8")
 
 
 def get_handler(policy: AuthPolicy, req: Req):

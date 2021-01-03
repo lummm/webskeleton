@@ -1,6 +1,7 @@
 from typing import List
 
 import asyncpg  # type: ignore
+from box import Box             # type: ignore
 
 
 pool: asyncpg.pool.Pool
@@ -24,6 +25,7 @@ async def _adjust_asyncpg_json_conversion(con: asyncpg.Connection):
     return
 
 
+# public
 async def connect(
     user: str = "postgres",
     password: str = "",
@@ -39,6 +41,10 @@ async def connect(
         init=_adjust_asyncpg_json_conversion,
     )
     return
+
+
+def as_box(record: asyncpg.Record) -> Box:
+    return Box(record.items())
 
 
 async def fetch_all(sql: str, bindargs: List = []):
