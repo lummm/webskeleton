@@ -7,7 +7,7 @@ import demo_controllers
 
 def main():
     app = load_routes(demo_controllers)
-    app.run(8888)
+    app.run(8000)
     return
 
 

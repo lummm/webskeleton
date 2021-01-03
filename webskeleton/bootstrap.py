@@ -9,6 +9,7 @@ from typing import Any, cast, Dict, List, NamedTuple, Optional, Tuple, Union
 from aiohttp import web  # type: ignore
 from box import Box  # type: ignore
 
+from . import auth
 from .typez import AuthConf, Req
 
 
@@ -52,17 +53,17 @@ async def handle_json(req: Req, handler) -> web.Response:
     return res
 
 
-def wrap_req_factory(services: Services):
+def req_wrapper_factory():
     @web.middleware
     async def wrap_req(request, handler):
-        req = Req(wrapped=request, services=services)
+        req = Req(wrapped=request)
         return await handle_json(req, handler)
 
     return wrap_req
 
 
 def init_webapp() -> web.Application:
-    app = web.Application(middlewares=[wrap_req_factory(app_services)])
+    app = web.Application(middlewares=[req_wrapper_factory()])
     return app
 
 
@@ -113,7 +114,7 @@ class WebSkeleton():
     def run(self, port: int):
         import uvloop
         asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
-        web.run_app(webapp, port=port)
+        web.run_app(self.webapp, port=port)
         return
 
 
@@ -124,8 +125,8 @@ def load_routes(routes_mod: ModuleType) -> WebSkeleton:
         "POST": web.post,
         "PUT": web.put,
     }
-    fns = [isfunction(f) and getattr(f,"is_endpoint", None)
-           for name, f in getmembers(routes_mod)]
+    fns = [f for name, f in getmembers(routes_mod)
+           if isfunction(f) and getattr(f,"is_endpoint", None)]
     routes = [
         METHOD_MAP[fn.method](fn.path, fn)
         for fn in fns

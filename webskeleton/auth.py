@@ -1,4 +1,5 @@
 import logging
+import re
 import time
 from typing import Any, Dict, NamedTuple, Optional, Union, Callable, List
 from typing_extensions import Literal
@@ -6,14 +7,13 @@ from typing_extensions import Literal
 import jwt
 
 from .request import Req
-from .typez import AuthPolicy, TokenType
+from .typez import AuthPolicy, TokenType, AuthConf
 
 
 BEARER_REGEX = re.compile("^Bearer: (.*)$")
 
 key = ""
 with open("./key", "r") as f:
-    global key
     key = f.read()
 
 
