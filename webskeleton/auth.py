@@ -51,7 +51,7 @@ def issue_token(
         },
         token_sig,
         algorithm=TOKEN_ALGO,
-    ).decode("utf-8")
+    )
 
 
 def get_handler(policy: AuthPolicy, req: Req):
@@ -79,7 +79,7 @@ async def check_authenticated(req: Req) -> str:
     auth_header = req.wrapped.headers.get("authorization")
     if not auth_header:
         raise req.fail(401, "no 'authorization' header")
-    claims = await req.creds_parse_bearer(auth_header, "session")
+    claims = creds_parse_bearer(auth_header, "session")
     if not claims:
         raise req.fail(401, "bad 'authorization' header")
     return claims["user_id"]

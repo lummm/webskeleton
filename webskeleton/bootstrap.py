@@ -92,7 +92,6 @@ def routedef(
                 await auth.check_authorized_policy(req, auth_conf)
             return await fn(req)
 
-        # route_list.append(METHOD_MAP[method](path, impl_fn))
         impl_fn.is_endpoint = True
         impl_fn.path = path
         impl_fn.method = method
@@ -110,7 +109,7 @@ def load_routes(webapp: web.Application, routes_mod: ModuleType) -> web.Applicat
     fns = [f for name, f in getmembers(routes_mod)
            if isfunction(f) and getattr(f,"is_endpoint", None)]
     routes = [
-        METHOD_MAP[fn.method](fn.path, fn)
+        METHOD_MAP[fn.method](fn.path, fn) # type: ignore
         for fn in fns
     ]
     webapp.add_routes(routes)
@@ -133,7 +132,7 @@ class WebSkeleton():
             database: str = "postgres",
             dbhost: str = "127.0.0.1",
     ):
-        import uvloop
+        import uvloop           # type: ignore
         asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
 
         async def init():

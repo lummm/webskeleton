@@ -1,6 +1,6 @@
 from typing import List
 
-import asyncpg
+import asyncpg                  # type: ignore
 
 
 pool: asyncpg.pool.Pool
