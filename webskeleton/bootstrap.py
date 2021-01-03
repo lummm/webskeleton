@@ -1,6 +1,7 @@
 import asyncio
 from inspect import getmembers, isfunction
 import json
+import logging
 from types import ModuleType
 from typing import Any, cast, Dict, List, NamedTuple, Optional, Tuple, Union
 
@@ -50,6 +51,7 @@ def load_routes(webapp: web.Application, routes_mod: ModuleType) -> web.Applicat
         if isfunction(f) and getattr(f, "is_endpoint", None)
     ]
     routes = [METHOD_MAP[fn.method](fn.path, fn) for fn in fns]  # type: ignore
+    logging.info("loaded routes:\n%s", "\n".join(map(str, routes)))
     webapp.add_routes(routes)
     return webapp
 
