@@ -1,7 +1,7 @@
-from typing import List
+from typing import Sequence
 
 import asyncpg  # type: ignore
-from box import Box             # type: ignore
+from box import Box  # type: ignore
 
 
 pool: asyncpg.pool.Pool
@@ -47,7 +47,7 @@ def as_box(record: asyncpg.Record) -> Box:
     return Box(record.items())
 
 
-async def fetch_all(sql: str, bindargs: List = []):
+async def fetch_all(sql: str, bindargs: Sequence = []):
     _check_pool()
     async with pool.acquire() as con:
         async with con.transaction():
@@ -55,7 +55,7 @@ async def fetch_all(sql: str, bindargs: List = []):
     return
 
 
-async def fetch_val(sql: str, bindargs: List = []):
+async def fetch_val(sql: str, bindargs: Sequence = []):
     _check_pool()
     async with pool.acquire() as con:
         async with con.transaction():
@@ -63,7 +63,7 @@ async def fetch_val(sql: str, bindargs: List = []):
     return
 
 
-async def execute(sql: str, bindargs: List = []):
+async def execute(sql: str, bindargs: Sequence = []):
     _check_pool()
     async with pool.acquire() as con:
         async with con.transaction():

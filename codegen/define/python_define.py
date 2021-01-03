@@ -86,11 +86,10 @@ def get_impl_language_model_def(schema: str, view: TableRecord):
 
 
 def wrap_view_defs(contents: str) -> str:
-    return f"""# type: ignore
-from typing import NamedTuple, List, Dict
+    return f"""from typing import NamedTuple, List, Dict
 
-from box import Box
-from pypika import Table, PostgreSQLQuery, Schema
+from box import Box             # type: ignore
+from pypika import Table, PostgreSQLQuery, Schema # type: ignore
 
 
 # views = Schema("sys")
@@ -100,8 +99,7 @@ from pypika import Table, PostgreSQLQuery, Schema
 
 
 def wrap_fn_defs(contents: str) -> str:
-    return f"""# type: ignore
-from typing import Dict, List
+    return f"""from typing import Dict, List
 
 import webskeleton.db as db
 

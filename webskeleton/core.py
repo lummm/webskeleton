@@ -6,6 +6,7 @@ from aiohttp import web  # type: ignore
 from box import Box  # type: ignore
 from multidict import MultiDictProxy
 
+from . import auth
 from .typez import AuthConf, Req
 
 
