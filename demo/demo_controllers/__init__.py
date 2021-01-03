@@ -1,3 +1,4 @@
+from webskeleton import db
 from webskeleton import routedef
 
 
@@ -8,4 +9,5 @@ async def big_route(req):
 
 @routedef(method="POST", path="/another", must_be_authenticated=False)
 async def another_route(req):
-    return {"hi": 2}
+    res = await db.fetch_val("select 1")
+    return {"hi": res}

@@ -47,7 +47,7 @@ async def connect(
 
 
 async def fetch_all(sql: str, bindargs: List = []):
-    check_pool()
+    _check_pool()
     async with pool.acquire() as con:
         async with con.transaction():
             return await con.fetch(sql, *bindargs)
@@ -55,7 +55,7 @@ async def fetch_all(sql: str, bindargs: List = []):
 
 
 async def fetch_val(sql: str, bindargs: List = []):
-    check_pool()
+    _check_pool()
     async with pool.acquire() as con:
         async with con.transaction():
             return await con.fetchval(sql, *bindargs)
@@ -63,7 +63,7 @@ async def fetch_val(sql: str, bindargs: List = []):
 
 
 async def execute(sql: str, bindargs: List = []):
-    check_pool()
+    _check_pool()
     async with pool.acquire() as con:
         async with con.transaction():
             return await con.execute(sql, *bindargs)
