@@ -1,0 +1,12 @@
+CREATE OR REPLACE FUNCTION unix_ts(
+  IN p_ts  TIMESTAMPTZ
+)
+RETURNS INTEGER
+AS $$
+BEGIN
+  RETURN extract(epoch FROM p_ts);
+END;
+$$
+LANGUAGE plpgsql
+IMMUTABLE
+;
