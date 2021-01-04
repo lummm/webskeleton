@@ -6,13 +6,6 @@ from aiohttp import web  # type: ignore
 from box import Box  # type: ignore
 
 
-# class Services(NamedTuple):
-#     authorize: services.authorize.Interface
-#     authenticate: services.authenticate.Interface
-#     crypto: services.crypto.Crypto
-#     models: Models
-
-
 class ReplyOperation(NamedTuple):
     fn: Union[Literal["set_cookie"]]
     args: List
