@@ -1,6 +1,6 @@
 import json
 import logging
-from typing import Dict, List, Literal, Optional, NamedTuple, Union
+from typing import Dict, List, Literal, Optional, NamedTuple, Union, Tuple
 
 from aiohttp import web  # type: ignore
 from box import Box  # type: ignore
@@ -25,6 +25,7 @@ class Req:
     wrapped: web.Request
     user_id: str
     reply_operations: List[ReplyOperation]
+    reply_headers: List[Tuple[str, str]]
 
     def __init__(
         self,
@@ -35,6 +36,7 @@ class Req:
         self.wrapped = wrapped
         self.params = params
         self.reply_operations = []
+        self.reply_headers = []
         return
 
     def fail(self, status: int, msg: str = "") -> Exception:

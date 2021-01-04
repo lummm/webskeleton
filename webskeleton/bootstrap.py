@@ -8,6 +8,7 @@ from typing import Any, cast, Dict, List, NamedTuple, Optional, Tuple, Union
 from aiohttp import web  # type: ignore
 from box import Box  # type: ignore
 
+from . import appredis
 from . import auth
 from . import db
 from .typez import AuthConf, Req
@@ -26,6 +27,8 @@ async def handle_json(req: Req, handler) -> web.Response:
         res.text = json.dumps(response_body)
     for action in req.reply_operations:
         getattr(res, action.fn)(*action.args, **action.kwargs)
+    for key, val in req.reply_headers:
+        res.headers[key] = val
     return res
 
 
@@ -69,6 +72,7 @@ class WebSkeleton:
         dbpassword: str = "",
         database: str = "postgres",
         dbhost: str = "127.0.0.1",
+        redis_host: str = "127.0.0.1",
     ):
         import uvloop  # type: ignore
 
@@ -78,6 +82,7 @@ class WebSkeleton:
             await db.connect(
                 user=dbuser, password=dbpassword, database=database, host=dbhost
             )
+            await appredis.connect(redis_host)
             app = web.Application(middlewares=[req_wrapper_factory()])
             app = load_routes(app, self.routes_module)
             return app
