@@ -19,7 +19,7 @@ def get_param_and_val(
     if type(param) == str:
         name: str = cast(str, param)
         if name not in container:
-            raise web.HTTPBadRequest(body=f"missing {container_type} parameter {name}")
+            raise web.HTTPBadRequest(text=f"missing {container_type} parameter {name}")
         return (name, container.get(name))
     name, default = cast(Tuple[str, Any], param)
     if name not in container:
@@ -29,7 +29,7 @@ def get_param_and_val(
 
 async def read_body_params(request: web.Request, params: List[ParamConf]) -> Box:
     if not request.can_read_body:
-        raise web.HTTPBadRequest(body="request requires body")
+        raise web.HTTPBadRequest(text="request requires body")
     body = await request.json()
     return Box(get_param_and_val(param, body, "body") for param in params)
 

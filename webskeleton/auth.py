@@ -11,6 +11,7 @@ from .typez import AuthPolicy, TokenType, AuthConf
 
 
 BEARER_REGEX = re.compile("^Bearer: (.*)$")
+# I added another header called 'refresh'
 
 key = ""
 with open("./key", "r") as f:
