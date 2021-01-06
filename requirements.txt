@@ -11,5 +11,4 @@ PyPika==0.46.0
 python-box==5.2.0
 typing-extensions==3.7.4.3
 uvloop==0.14.0
-webskeleton==0.1.0
 yarl==1.6.3
