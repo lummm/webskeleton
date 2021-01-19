@@ -27,15 +27,12 @@ from .typez import AuthPolicy, TokenType, AuthConf
 BEARER_REGEX = re.compile("^Bearer: (.*)$")
 # I added another header called 'refresh'
 
-key = ""
-with open("./key", "r") as f:
-    key = f.read()
-
 
 TOKEN_ALGO = "HS256"
 REFRESH_TOKEN_SIZE = 24
 ACCESS_TOKEN_EXP_S = 1800  # 30 mins
 REFRESH_TOKEN_EXP_S = 259200  # 3 days
+KEY = ""
 
 
 class CredsParseException(Exception):
@@ -63,6 +60,12 @@ def set_access_token_exp_s(seconds: int) -> None:
 def set_refresh_token_exp_s(seconds: int) -> None:
     global REFRESH_TOKEN_EXP_S
     REFRESH_TOKEN_EXP_S = seconds
+    return
+
+
+def set_key(key: str) -> None:
+    global KEY
+    KEY = key
     return
 
 
