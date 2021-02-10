@@ -1,3 +1,7 @@
+"""
+This handles auth related logic.
+TODO: rename this into private and public.
+"""
 import base64
 import logging
 import os
@@ -57,7 +61,7 @@ def issue_access_token(user_id: str) -> str:
         },
         ENV.KEY,
         algorithm=TOKEN_ALGO,
-    ).decode("utf-8")           # type: ignore
+    )
 
 
 async def issue_refresh_token(
