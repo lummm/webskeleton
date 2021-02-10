@@ -4,6 +4,8 @@ import asyncpg  # type: ignore
 from box import Box  # type: ignore
 
 
+from webskeleton.env import ENV
+
 pool: asyncpg.pool.Pool
 
 
@@ -25,19 +27,20 @@ async def _adjust_asyncpg_json_conversion(con: asyncpg.Connection):
     return
 
 
+def get_connect_args() -> dict:
+    return {
+        "user": ENV.PGUSER,
+        "password": ENV.PGPASSWORD,
+        "database": ENV.PGDB,
+        "host": ENV.PGHOST,
+    }
+
+
 # public
-async def connect(
-    user: str = "postgres",
-    password: str = "",
-    database: str = "postgres",
-    host: str = "127.0.0.1",
-):
+async def connect():
     global pool
     pool = await asyncpg.create_pool(
-        user=user,
-        password=password,
-        database=database,
-        host=host,
+        **get_connect_args(),
         init=_adjust_asyncpg_json_conversion,
     )
     return

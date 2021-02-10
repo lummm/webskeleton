@@ -20,19 +20,16 @@ from jwt.exceptions import InvalidTokenError  # type: ignore
 
 from . import autheval
 from . import appredis
+from .env import ENV
 from .request import Req
 from .typez import AuthPolicy, TokenType, AuthConf
 
 
-BEARER_REGEX = re.compile("^Bearer: (.*)$")
-# I added another header called 'refresh'
-
+BEARER_REGEX = re.compile("^Bearer (.*)$")
+REFRESH_REGEX = re.compile("^(.+) (.+)$")
+REFRESH_TOKEN_HEADER = "refresh"
 
 TOKEN_ALGO = "HS256"
-REFRESH_TOKEN_SIZE = 24
-ACCESS_TOKEN_EXP_S = 1800  # 30 mins
-REFRESH_TOKEN_EXP_S = 259200  # 3 days
-KEY = ""
 
 
 class CredsParseException(Exception):
@@ -51,41 +48,23 @@ def parse_token(
     return claims
 
 
-def set_access_token_exp_s(seconds: int) -> None:
-    global ACCESS_TOKEN_EXP_S
-    ACCESS_TOKEN_EXP_S = seconds
-    return
-
-
-def set_refresh_token_exp_s(seconds: int) -> None:
-    global REFRESH_TOKEN_EXP_S
-    REFRESH_TOKEN_EXP_S = seconds
-    return
-
-
-def set_key(key: str) -> None:
-    global KEY
-    KEY = key
-    return
-
-
 def issue_access_token(user_id: str) -> str:
-    exp_time = time.time() + ACCESS_TOKEN_EXP_S
+    exp_time = time.time() + ENV.ACCESS_TOKEN_EXP_S
     return jwt.encode(
         {
             "exp": exp_time,
             "user_id": user_id,
         },
-        key,
+        ENV.KEY,
         algorithm=TOKEN_ALGO,
-    ).decode("utf-8")
+    ).decode("utf-8")           # type: ignore
 
 
 async def issue_refresh_token(
     user_id: str,
 ) -> str:
-    token = base64.b64encode(os.urandom(REFRESH_TOKEN_SIZE)).decode("utf-8")
-    await appredis.set_str(token, user_id, REFRESH_TOKEN_EXP_S)
+    token = base64.b64encode(os.urandom(ENV.REFRESH_TOKEN_SIZE)).decode("utf-8")
+    await appredis.set_str(token, user_id, ENV.REFRESH_TOKEN_EXP_S)
     return token
 
 
@@ -104,14 +83,14 @@ def creds_parse_bearer(
     token = match.groups()[0]
     if not token:
         raise CredsParseException("bad creds")
-    claims = parse_token(key, token)
+    claims = parse_token(ENV.KEY, token)
     return claims
 
 
 async def attempt_lookup_refresh_token(
     req: Req,
-) -> Tuple[str, str,]:  # user_id  # refresh_token
-    refresh_header = req.wrapped.headers.get("refresh")
+) -> Tuple[str, str]:  # (user_id, refresh_token)
+    refresh_header = req.wrapped.headers.get(REFRESH_TOKEN_HEADER)
     if not refresh_header:
         raise CredsParseException("no refresh token")
     user_id = await appredis.get_str(refresh_header)

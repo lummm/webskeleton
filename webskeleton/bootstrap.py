@@ -64,25 +64,14 @@ class WebSkeleton:
         self.routes_module = routes_module
         return
 
-    def run(
-        self,
-        *,
-        port: int = 0,
-        dbuser: str = "postgres",
-        dbpassword: str = "",
-        database: str = "postgres",
-        dbhost: str = "127.0.0.1",
-        redis_host: str = "127.0.0.1",
-    ):
+    def run(self):
         import uvloop  # type: ignore
 
         asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
 
         async def init():
-            await db.connect(
-                user=dbuser, password=dbpassword, database=database, host=dbhost
-            )
-            await appredis.connect(redis_host)
+            await db.connect()
+            await appredis.connect()
             app = web.Application(middlewares=[req_wrapper_factory()])
             app = load_routes(app, self.routes_module)
             return app

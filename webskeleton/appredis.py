@@ -2,6 +2,8 @@ from typing import Optional
 
 import aioredis  # type: ignore
 
+from webskeleton.env import ENV
+
 
 pool: aioredis.pool.ConnectionsPool
 
@@ -12,9 +14,9 @@ def _check_pool():
     return
 
 
-async def connect(host: str):
+async def connect():
     global pool
-    pool = await aioredis.create_redis_pool(f"redis://{host}")
+    pool = await aioredis.create_redis_pool(f"redis://{ENV.REDIS_HOST}")
     return
 
 

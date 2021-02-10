@@ -1,4 +1,8 @@
 #!/usr/bin/env python3
+"""
+This dynamically generates function defintions
+and types corresponding to views based on the db schema.
+"""
 
 import argparse
 
