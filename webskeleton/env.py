@@ -21,8 +21,10 @@ class _ENV(NamedTuple):
     REDIS_HOST: str = os.environ.get("REDIS_HOST", "localhost")
     # size in bytes
     REFRESH_TOKEN_SIZE: int = int(os.environ.get("REFRESH_TOKEN_SIZE", 24))
-    ACCESS_TOKEN_EXP_S: int = int(os.environ.get("ACCESS_TOKEN_EXP_S", 1800)) # 30 mins
-    REFRESH_TOKEN_EXP_S: int = int(os.environ.get("REFRESH_TOKEN_EXP_S", 259200)) # 3 days
+    ACCESS_TOKEN_EXP_S: int = int(os.environ.get("ACCESS_TOKEN_EXP_S", 1800))  # 30 mins
+    REFRESH_TOKEN_EXP_S: int = int(
+        os.environ.get("REFRESH_TOKEN_EXP_S", 259200)
+    )  # 3 days
 
 
 ENV = _ENV()
