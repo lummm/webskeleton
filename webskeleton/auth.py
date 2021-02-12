@@ -129,5 +129,5 @@ async def check_authorized_policy(req: Req, auth_conf: AuthConf) -> bool:
     obj_ids = auth_conf.obj_ids and auth_conf.obj_ids(req)
     handler = get_handler(auth_conf.policy, req)
     if not await handler(req.user_id, obj_ids):
-        raise req.fail(403, f"unauthorized failed for user: {auth_conf}")
+        raise req.fail(403, f"auth check failed for user: {auth_conf}")
     return True
