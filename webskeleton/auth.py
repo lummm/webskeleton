@@ -8,14 +8,7 @@ import os
 import re
 import time
 from typing import (
-    Any,
     Dict,
-    NamedTuple,
-    Optional,
-    Union,
-    Callable,
-    List,
-    Literal,
     Tuple,
 )
 
@@ -26,7 +19,7 @@ from . import autheval
 from . import appredis
 from .env import ENV
 from .request import Req
-from .typez import AuthPolicy, TokenType, AuthConf
+from .typez import AuthPolicy, AuthConf
 
 
 BEARER_REGEX = re.compile("^Bearer (.*)$")
@@ -113,6 +106,7 @@ async def check_authenticated(req: Req) -> str:
         claims = creds_parse_bearer(auth_header)
         return claims["user_id"]
     except CredsParseException as access_e:
+        logging.error("creds parse failed", access_e)
         try:
             user_id, refresh_token = await attempt_lookup_refresh_token(req)
             logging.info("refreshing session for %s", user_id)

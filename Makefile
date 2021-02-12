@@ -9,6 +9,7 @@ format:
 .PHONY: check-format
 check-format:
 	python -m black --check ./webskeleton
+	python -m flake8 ./webskeleton
 
 .PHONY: install
 install:

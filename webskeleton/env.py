@@ -13,7 +13,7 @@ class _ENV(NamedTuple):
     KEY: str = os.environ["KEY"]
     PORT: int = int(os.environ["PORT"])
 
-    ## -- optional
+    # -- optional
     PGHOST: str = os.environ.get("PGHOST", "localhost")
     PGUSER: str = os.environ.get("PGUSER", "postgres")
     PGDB: str = os.environ.get("PGDB", "postgres")

@@ -3,15 +3,13 @@ from inspect import getmembers, isfunction
 import json
 import logging
 from types import ModuleType
-from typing import Any, cast, Dict, List, NamedTuple, Optional, Tuple, Union
 
 from aiohttp import web  # type: ignore
-from box import Box  # type: ignore
 
 from . import appredis
-from . import auth
 from . import db
-from .typez import AuthConf, Req
+from .env import ENV
+from .typez import Req
 
 
 async def handle_json(req: Req, handler) -> web.Response:
@@ -76,5 +74,5 @@ class WebSkeleton:
             app = load_routes(app, self.routes_module)
             return app
 
-        web.run_app(init(), port=port)
+        web.run_app(init(), port=ENV.PORT)
         return

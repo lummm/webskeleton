@@ -1,6 +1,4 @@
-import json
-import logging
-from typing import Dict, List, Literal, Optional, NamedTuple, Union, Tuple
+from typing import Dict, List, Literal, NamedTuple, Union, Tuple
 
 from aiohttp import web  # type: ignore
 from box import Box  # type: ignore

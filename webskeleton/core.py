@@ -1,5 +1,5 @@
 import functools
-from typing import Any, cast, Dict, List, NamedTuple, Optional, Tuple, Union
+from typing import Any, cast, Dict, List, Optional, Tuple, Union
 
 
 from aiohttp import web  # type: ignore
