@@ -23,6 +23,10 @@ install-dev:
 test: install-dev
 	./test/run.sh
 
+.PHONY: dist
+dist:
+	python ./setup.py sdist
+
 
 .PHONY: ci
 ci: typecheck check-format test
