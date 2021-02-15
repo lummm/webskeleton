@@ -99,5 +99,5 @@ class WebSkeleton:
         asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
 
         logging.info("starting on port %s", ENV.PORT)
-        web.run_app(self._load_app, port=ENV.PORT)
+        web.run_app(self._load_app(), port=ENV.PORT)
         return
