@@ -58,9 +58,16 @@ def issue_access_token(user_id: str) -> str:
 
 async def issue_refresh_token(
     user_id: str,
+        req: Req,
 ) -> str:
+    # can also delete existing tokens
     token = base64.b64encode(os.urandom(ENV.REFRESH_TOKEN_SIZE)).decode("utf-8")
     await appredis.set_str(token, user_id, ENV.REFRESH_TOKEN_EXP_S)
+    req.set_cookie(
+        name=REFRESH_TOKEN_COOKIE,
+        value=token,
+        path="/"
+    )
     return token
 
 
