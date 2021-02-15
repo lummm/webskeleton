@@ -39,6 +39,16 @@ def req_wrapper_factory():
     return wrap_req
 
 
+def setup_logging(level=logging.INFO) -> None:
+    logging.basicConfig(
+        level=level,
+        format="%(asctime)s.%(msecs)03d "
+        "%(levelname)s %(module)s - %(funcName)s: %(message)s",
+        datefmt="%Y-%m-%d %H:%M:%S",
+    )
+    return
+
+
 # public
 def load_routes(webapp: web.Application, routes_mod: ModuleType) -> web.Application:
     METHOD_MAP = {
@@ -60,6 +70,26 @@ def load_routes(webapp: web.Application, routes_mod: ModuleType) -> web.Applicat
 class WebSkeleton:
     def __init__(self, routes_module: ModuleType):
         self.routes_module = routes_module
+        return
+
+    async def _startup_services(self):
+        await db.connect()
+        await appredis.connect()
+        return
+
+    async def _load_app(self):
+        await self._startup_services()
+        app = web.Application(middlewares=[req_wrapper_factory()])
+        app = load_routes(app, self.routes_module)
+        return app
+
+    async def run_async(self):
+        app = await self._load_app()
+        runner = web.AppRunner(app)
+        await runner.setup()
+        site = web.TCPSite(runner, "0.0.0.0", ENV.PORT)
+        logging.info("starting on port %s", ENV.PORT)
+        await site.start()
         return
 
     def run(self):

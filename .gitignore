@@ -8,3 +8,6 @@ __pycache__/
 
 demo/key
 key
+
+*.egg-info
+dist/
