@@ -8,3 +8,12 @@ from webskeleton import routedef, Req
 )
 async def entry(req: Req):
     return "OK"
+
+
+@routedef(
+    method="GET",
+    path="/no_authenticate",
+    must_be_authenticated=True,
+)
+async def no_authenticate(req: Req):
+    return "OK"

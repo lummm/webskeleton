@@ -30,7 +30,6 @@ def run_tests():
     print("running tests")
     tests = [f for f in os.listdir("./test")
              if "_test" in f]
-    time.sleep(2)
     pytest.main(tests)
     return
 
