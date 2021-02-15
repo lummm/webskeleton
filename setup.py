@@ -4,12 +4,12 @@ from setuptools import find_packages, setup
 
 
 setup(name='webskeleton',
-      version='v0.1.0',
+      version='v0.1.1',
       description='Web skeleton',
       author='Liam Tengelis',
       author_email='liam@tengelisconsulting.com',
       url='https://github.com/tengelisconsulting/webskeleton',
-      download_url='https://github.com/tengelisconsulting/webskeleton/archive/v0.1.0.tar.gz',
+      download_url='https://github.com/tengelisconsulting/webskeleton/archive/v0.1.1.tar.gz',
       install_requires=[
           "aiohttp==3.7.3",
           "aioredis==1.3.1",
