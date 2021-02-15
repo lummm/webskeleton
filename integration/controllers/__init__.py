@@ -40,3 +40,16 @@ async def login(req: Req):
     return {
         "access": access_token,
     }
+
+
+@routedef(
+    method="POST",
+    path="/needs-auth",
+    must_be_authenticated=True,
+)
+async def needs_auth(req: Req):
+    """
+    The authentication check should
+    always check for the refresh token.
+    """
+    return "ALL GOOD!"

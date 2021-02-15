@@ -92,14 +92,21 @@ def creds_parse_bearer(
 
 async def attempt_lookup_refresh_token(
     req: Req,
-) -> Tuple[str, str]:  # (user_id, refresh_token)
+) -> str:
+    """
+    Look up the refresh token.
+    If found, we generate a new refresh token,
+    deleting the old one.
+    The new token will be updated as a cookie.
+    We return the user id.
+    """
     refresh_token = req.wrapped.cookies[REFRESH_TOKEN_COOKIE]
     if not refresh_token:
         raise CredsParseException("no refresh token")
     user_id = await appredis.get_str(refresh_token)
     if not user_id:
         raise CredsParseException("invalid refresh token")
-    new_refresh_token = await issue_refresh_token(user_id)
+    new_refresh_token = await issue_refresh_token(user_id, req)
     await appredis.delete(refresh_token)
     return (user_id, new_refresh_token)
 
@@ -112,13 +119,13 @@ async def check_authenticated(req: Req) -> str:
         claims = creds_parse_bearer(auth_header)
         return claims["user_id"]
     except CredsParseException as access_e:
-        logging.error("creds parse failed", access_e)
+        logging.error("creds parse failed - %s", access_e)
         try:
-            user_id, refresh_token = await attempt_lookup_refresh_token(req)
+            user_id = await attempt_lookup_refresh_token(req)
             logging.info("refreshing session for %s", user_id)
             access_token = issue_access_token(user_id)
             req.reply_headers.append(("set-session-token", access_token))
-            req.reply_headers.append(("set-refresh-token", refresh_token))
+
             return user_id
         except CredsParseException:
             raise req.fail(401, "invalid access token and invalid refresh token")
