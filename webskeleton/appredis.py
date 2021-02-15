@@ -5,7 +5,7 @@ import aioredis  # type: ignore
 from webskeleton.env import ENV
 
 
-pool: aioredis.pool.ConnectionsPool
+pool: aioredis.pool.ConnectionsPool = None
 
 
 def _check_pool():
@@ -32,3 +32,8 @@ async def get_str(key: str) -> Optional[str]:
     if not res:
         return None
     return res.decode("utf-8")
+
+
+async def delete(key: str) -> None:
+    _check_pool()
+    return await pool.delete(key)

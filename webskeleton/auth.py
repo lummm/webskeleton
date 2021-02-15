@@ -23,8 +23,7 @@ from .typez import AuthPolicy, AuthConf
 
 
 BEARER_REGEX = re.compile("^Bearer (.*)$")
-REFRESH_REGEX = re.compile("^(.+) (.+)$")
-REFRESH_TOKEN_HEADER = "refresh"
+REFRESH_TOKEN_COOKIE = "webskeleton-refresh"
 
 TOKEN_ALGO = "HS256"
 
@@ -87,14 +86,14 @@ def creds_parse_bearer(
 async def attempt_lookup_refresh_token(
     req: Req,
 ) -> Tuple[str, str]:  # (user_id, refresh_token)
-    refresh_header = req.wrapped.headers.get(REFRESH_TOKEN_HEADER)
-    if not refresh_header:
+    refresh_token = req.wrapped.cookies[REFRESH_TOKEN_COOKIE]
+    if not refresh_token:
         raise CredsParseException("no refresh token")
-    user_id = await appredis.get_str(refresh_header)
+    user_id = await appredis.get_str(refresh_token)
     if not user_id:
         raise CredsParseException("invalid refresh token")
     new_refresh_token = await issue_refresh_token(user_id)
-    await appredis.pool.delete(refresh_header)
+    await appredis.delete(refresh_token)
     return (user_id, new_refresh_token)
 
 
