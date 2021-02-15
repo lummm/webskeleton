@@ -24,8 +24,16 @@ test: install-dev
 	./test/run.sh
 
 .PHONY: dist
-dist:
+dist: ci
 	python ./setup.py sdist
+
+.PHONY: publish
+publish:
+	python -m twine upload ./dist/*
+
+.PHONY: clean
+clean:
+	rm -rf ./dist
 
 
 .PHONY: ci
