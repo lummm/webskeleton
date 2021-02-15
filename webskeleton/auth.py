@@ -22,8 +22,7 @@ from .typez import AuthPolicy, AuthConf
 
 
 BEARER_REGEX = re.compile("^Bearer (.*)$")
-REFRESH_REGEX = re.compile("^(.+) (.+)$")
-REFRESH_TOKEN_HEADER = "refresh"
+REFRESH_TOKEN_COOKIE = "webskeleton-refresh"
 
 TOKEN_ALGO = "HS256"
 
@@ -67,6 +66,7 @@ async def issue_refresh_token(
     of REFRESH_TOKEN_EXP_S seconds,
     and set as an hhtp-only cookie on the request.
     """
+    # can also delete existing tokens
     token = base64.b64encode(os.urandom(ENV.REFRESH_TOKEN_SIZE)).decode("utf-8")
     await appredis.set_str(token, user_id, ENV.REFRESH_TOKEN_EXP_S)
     req.set_cookie(
@@ -99,10 +99,17 @@ def creds_parse_bearer(
 async def attempt_lookup_refresh_token(
     req: Req,
 ) -> str:
-    refresh_header = req.wrapped.headers.get(REFRESH_TOKEN_HEADER)
-    if not refresh_header:
+    """
+    Look up the refresh token.
+    If found, we generate a new refresh token,
+    deleting the old one.
+    The new token will be updated as a cookie.
+    We return the user id.
+    """
+    refresh_token = req.wrapped.cookies[REFRESH_TOKEN_COOKIE]
+    if not refresh_token:
         raise CredsParseException("no refresh token")
-    user_id = await appredis.get_str(refresh_header)
+    user_id = await appredis.get_str(refresh_token)
     if not user_id:
         raise CredsParseException("invalid refresh token")
     await issue_refresh_token(user_id, req)
@@ -118,13 +125,13 @@ async def check_authenticated(req: Req) -> str:
         claims = creds_parse_bearer(auth_header)
         return claims["user_id"]
     except CredsParseException as access_e:
-        logging.error("creds parse failed", access_e)
+        logging.error("creds parse failed - %s", access_e)
         try:
-            user_id, refresh_token = await attempt_lookup_refresh_token(req)
+            user_id = await attempt_lookup_refresh_token(req)
             logging.info("refreshing session for %s", user_id)
             access_token = issue_access_token(user_id)
             req.reply_headers.append(("set-session-token", access_token))
-            req.reply_headers.append(("set-refresh-token", refresh_token))
+
             return user_id
         except CredsParseException:
             raise req.fail(401, "invalid access token and invalid refresh token")

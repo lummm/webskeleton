@@ -1,6 +1,9 @@
 venv/
 env
 
+dist/
+*.egg-info
+
 __pycache__/
 *.py[cod]
 *$py.class
@@ -8,6 +11,3 @@ __pycache__/
 
 demo/key
 key
-
-*.egg-info
-dist/

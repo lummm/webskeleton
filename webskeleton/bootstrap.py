@@ -69,6 +69,7 @@ def load_routes(webapp: web.Application, routes_mod: ModuleType) -> web.Applicat
 
 class WebSkeleton:
     def __init__(self, routes_module: ModuleType):
+        setup_logging(ENV.LOG_LEVEL)
         self.routes_module = routes_module
         return
 
@@ -87,22 +88,15 @@ class WebSkeleton:
         app = await self._load_app()
         runner = web.AppRunner(app)
         await runner.setup()
-        site = web.TCPSite(runner, "0.0.0.0", ENV.PORT)
+        site = web.TCPSite(runner, '0.0.0.0', ENV.PORT)
         logging.info("starting on port %s", ENV.PORT)
         await site.start()
         return
 
     def run(self):
         import uvloop  # type: ignore
-
         asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
 
-        async def init():
-            await db.connect()
-            await appredis.connect()
-            app = web.Application(middlewares=[req_wrapper_factory()])
-            app = load_routes(app, self.routes_module)
-            return app
-
-        web.run_app(init(), port=ENV.PORT)
+        logging.info("starting on port %s", ENV.PORT)
+        web.run_app(self._load_app, port=ENV.PORT)
         return

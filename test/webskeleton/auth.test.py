@@ -67,6 +67,36 @@ class AuthTest(IsolatedAsyncioTestCase):
                 req, auth_conf)
         return
 
+    async def test_attempt_lookup_refresh_token(self):
+        import webskeleton.appredis as appredis
+        refresh_token = "a1s2d3f4"
+        req = Req(
+            wrapped=Box({
+                "cookies": {
+                    auth.REFRESH_TOKEN_COOKIE: refresh_token,
+                },
+            })
+        )
+        user_id = "test-user-id"
+        appredis.get_str = AsyncMock(return_value=user_id)
+        appredis.set_str = AsyncMock()
+        appredis.delete = AsyncMock()
+        lookup_user_id, new_refresh_token = await auth.attempt_lookup_refresh_token(req)
+        self.assertEqual(
+            appredis.get_str.call_args_list[0].args[0],
+            refresh_token,
+        )
+        self.assertEqual(
+            appredis.delete.call_args_list[0].args[0],
+            refresh_token,
+        )
+        self.assertEqual(lookup_user_id, user_id)
+        self.assertEqual(
+            appredis.set_str.call_args_list[0].args[:2],
+            (new_refresh_token, user_id),
+        )
+        return
+
 
 if __name__ == '__main__':
     unittest.main()
