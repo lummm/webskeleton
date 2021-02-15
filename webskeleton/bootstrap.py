@@ -42,7 +42,7 @@ def req_wrapper_factory():
 def setup_logging(level=logging.INFO) -> None:
     logging.basicConfig(
         level=level,
-        format=f"%(asctime)s.%(msecs)03d "
+        format="%(asctime)s.%(msecs)03d "
         "%(levelname)s %(module)s - %(funcName)s: %(message)s",
         datefmt="%Y-%m-%d %H:%M:%S",
     )
@@ -88,13 +88,14 @@ class WebSkeleton:
         app = await self._load_app()
         runner = web.AppRunner(app)
         await runner.setup()
-        site = web.TCPSite(runner, '0.0.0.0', ENV.PORT)
+        site = web.TCPSite(runner, "0.0.0.0", ENV.PORT)
         logging.info("starting on port %s", ENV.PORT)
         await site.start()
         return
 
     def run(self):
         import uvloop  # type: ignore
+
         asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
 
         logging.info("starting on port %s", ENV.PORT)

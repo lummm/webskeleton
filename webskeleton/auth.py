@@ -9,7 +9,6 @@ import re
 import time
 from typing import (
     Dict,
-    Tuple,
 )
 
 import jwt
@@ -45,6 +44,7 @@ def parse_token(
 
 
 def issue_access_token(user_id: str) -> str:
+    "creates a jwt with user_id as payload"
     exp_time = time.time() + ENV.ACCESS_TOKEN_EXP_S
     return jwt.encode(
         {
@@ -58,16 +58,18 @@ def issue_access_token(user_id: str) -> str:
 
 async def issue_refresh_token(
     user_id: str,
-        req: Req,
+    req: Req,
 ) -> str:
+    """
+    Creates a random string refresh token.
+    The token is saved in Redis with an expire time
+    of REFRESH_TOKEN_EXP_S seconds,
+    and set as an hhtp-only cookie on the request.
+    """
     # can also delete existing tokens
     token = base64.b64encode(os.urandom(ENV.REFRESH_TOKEN_SIZE)).decode("utf-8")
     await appredis.set_str(token, user_id, ENV.REFRESH_TOKEN_EXP_S)
-    req.set_cookie(
-        name=REFRESH_TOKEN_COOKIE,
-        value=token,
-        path="/"
-    )
+    req.set_cookie(name=REFRESH_TOKEN_COOKIE, value=token, path="/")
     return token
 
 
@@ -106,9 +108,9 @@ async def attempt_lookup_refresh_token(
     user_id = await appredis.get_str(refresh_token)
     if not user_id:
         raise CredsParseException("invalid refresh token")
-    new_refresh_token = await issue_refresh_token(user_id, req)
+    await issue_refresh_token(user_id, req)
     await appredis.delete(refresh_token)
-    return (user_id, new_refresh_token)
+    return user_id
 
 
 async def check_authenticated(req: Req) -> str:
