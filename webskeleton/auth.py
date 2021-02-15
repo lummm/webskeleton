@@ -102,7 +102,11 @@ async def attempt_lookup_refresh_token(
     The new token will be updated as a cookie.
     We return the user id.
     """
-    refresh_token = req.wrapped.cookies[REFRESH_TOKEN_COOKIE]
+    refresh_token = (
+        req.wrapped.cookies[REFRESH_TOKEN_COOKIE]
+        if REFRESH_TOKEN_COOKIE in req.wrapped.cookies
+        else None
+    )
     if not refresh_token:
         raise CredsParseException("no refresh token")
     user_id = await appredis.get_str(refresh_token)
