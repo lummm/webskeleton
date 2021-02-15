@@ -28,10 +28,19 @@ class AuthTest(IsolatedAsyncioTestCase):
     async def test_issue_refresh_token(self):
         import webskeleton.appredis as appredis
         appredis.set_str = AsyncMock()
-        token = await auth.issue_refresh_token(user_id)
+        req = Req(wrapped=None)
+        req.set_cookie = MagicMock()
+        token = await auth.issue_refresh_token(user_id, req)
         save_call = appredis.set_str.call_args_list[0]
         self.assertEqual(save_call.args[0], token)
         self.assertEqual(save_call.args[1], user_id)
+        self.assertEqual(
+            req.set_cookie.call_args[-1], {
+                "name": auth.REFRESH_TOKEN_COOKIE,
+                "value": token,
+                "path": "/",
+            }
+        )
         return
 
     async def test_check_authorized_policy(self):
@@ -81,7 +90,7 @@ class AuthTest(IsolatedAsyncioTestCase):
         appredis.get_str = AsyncMock(return_value=user_id)
         appredis.set_str = AsyncMock()
         appredis.delete = AsyncMock()
-        lookup_user_id, new_refresh_token = await auth.attempt_lookup_refresh_token(req)
+        lookup_user_id = await auth.attempt_lookup_refresh_token(req)
         self.assertEqual(
             appredis.get_str.call_args_list[0].args[0],
             refresh_token,
@@ -91,10 +100,6 @@ class AuthTest(IsolatedAsyncioTestCase):
             refresh_token,
         )
         self.assertEqual(lookup_user_id, user_id)
-        self.assertEqual(
-            appredis.set_str.call_args_list[0].args[:2],
-            (new_refresh_token, user_id),
-        )
         return
 
 
