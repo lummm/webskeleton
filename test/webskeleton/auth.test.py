@@ -15,11 +15,17 @@ user_id = "test-user-id"
 
 class AuthTest(IsolatedAsyncioTestCase):
     def test_issue_access_token(self):
-        token = auth.issue_access_token(user_id)
+        req = Req(wrapped=None)
+        token = auth.issue_access_token(user_id, req)
+        self.assertEqual(
+            req.reply_headers,
+            [(auth.SET_SESSION_TOKEN_HEADER, token)]
+        )
         return
 
     def test_issue_and_parse_creds(self):
-        token = auth.issue_access_token(user_id)
+        req = Req(wrapped=None)
+        token = auth.issue_access_token(user_id, req)
         bearer_creds = f"Bearer {token}"
         claims = auth.creds_parse_bearer(bearer_creds)
         self.assertEqual(claims["user_id"], user_id)

@@ -23,6 +23,7 @@ from .typez import AuthPolicy, AuthConf
 
 BEARER_REGEX = re.compile("^Bearer (.*)$")
 REFRESH_TOKEN_COOKIE = "webskeleton-refresh"
+SET_SESSION_TOKEN_HEADER = "set-session-token"
 
 TOKEN_ALGO = "HS256"
 
@@ -43,10 +44,10 @@ def parse_token(
     return claims
 
 
-def issue_access_token(user_id: str) -> str:
+def issue_access_token(user_id: str, req: Req) -> str:
     "creates a jwt with user_id as payload"
     exp_time = time.time() + ENV.ACCESS_TOKEN_EXP_S
-    return jwt.encode(
+    token = jwt.encode(
         {
             "exp": exp_time,
             "user_id": user_id,
@@ -54,6 +55,8 @@ def issue_access_token(user_id: str) -> str:
         ENV.KEY,
         algorithm=TOKEN_ALGO,
     )
+    req.reply_headers.append((SET_SESSION_TOKEN_HEADER, token))
+    return token
 
 
 async def issue_refresh_token(
@@ -129,9 +132,7 @@ async def check_authenticated(req: Req) -> str:
         try:
             user_id = await attempt_lookup_refresh_token(req)
             logging.info("refreshing session for %s", user_id)
-            access_token = issue_access_token(user_id)
-            req.reply_headers.append(("set-session-token", access_token))
-
+            issue_access_token(user_id, req)
             return user_id
         except CredsParseException:
             raise req.fail(401, "invalid access token and invalid refresh token")
